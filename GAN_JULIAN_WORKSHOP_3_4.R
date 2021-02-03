@@ -1,4 +1,4 @@
-# WORKSHOP 3
+# WORKSHOP 3 -----------------------------------------------------------
 ## If statements
 
 for (i in 1:10) {
@@ -110,32 +110,32 @@ N[20]
 # 2 Discrete time equation for logistical growth
 require(ggplot2)
 gen <- c(1:50)
+r1 <- 2.56
+r2 <- 2
+r3 <- 3
+r4 <- 3.01
 
-N.next <- function(r, N.current, K) {
-  return((1 + r * (1 - (N.current/K))) * N.current)
+N <- function(r, K, N0, t){
+  res <- rep(0,t)
+  res[1] <- N0
+  for(Nt in 2:t)
+    res[Nt] <- res[Nt-1] * (1 + r * (1 - res[Nt-1]/K))
+  round(res)
 }
-n <- 50
 
 # Graph 1
-for (i in 1:50){
-  Nt <- vector()
-  Nt[1] <- 10
-  r <- 2.56
-  K <- 1000
-  for (i in 2:n){
-    Nt[i] <- Nt[i-1] * (1 + r * (1 - (Nt[i-1])/K))
-  }
-}
 
-plot_N <- data.frame(gen,Nt)
+pop <- N(r1, 1000, 20, 50)
 
-graph_a <- ggplot(plot_N, aes(x=gen, y=Nt))+
+plot_N <- data.frame(gen,pop)
+
+graph_a <- ggplot(plot_N, aes(x=gen, y=pop))+
   geom_line()+
   ylim(-10,2000)+
   labs(x = "Generation",
        y = "Population size") +
   annotate("text", x=25, y=1900,
-           label = paste("italic(r)==", r),
+           label = paste("italic(r)==", r1),
            parse=TRUE,
            size=5) +
   theme(panel.grid.major = element_blank(), 
@@ -143,28 +143,21 @@ graph_a <- ggplot(plot_N, aes(x=gen, y=Nt))+
         panel.background = element_blank(), 
         axis.line = element_line(colour = "black"),
         panel.border = element_rect(colour = "black", fill=NA, size=0.5))
-
+graph_a
 
 # Graph 2
-for (i in 1:50){
-  Nt <- vector()
-  Nt[1] <- 10
-  r <- 2.0
-  K <- 1000
-  for (i in 2:n){
-    Nt[i] <- Nt[i-1] * (1 + r * (1 - (Nt[i-1])/K))
-  }
-}
 
-plot_N <- data.frame(gen,Nt)
+pop <- N(r2, 1000, 20, 50)
 
-graph_b <- ggplot(plot_N, aes(x=gen, y=Nt))+
+plot_N <- data.frame(gen,pop)
+
+graph_b <- ggplot(plot_N, aes(x=gen, y=pop))+
   geom_line()+
   ylim(-10,2000)+
   labs(x = "Generation",
        y = "Population size") +
   annotate("text", x=25, y=1900,
-           label = paste("italic(r)==", r),
+           label = paste("italic(r)==", r2),
            parse=TRUE,
            size=5) +
   theme(panel.grid.major = element_blank(), 
@@ -172,28 +165,21 @@ graph_b <- ggplot(plot_N, aes(x=gen, y=Nt))+
         panel.background = element_blank(), 
         axis.line = element_line(colour = "black"),
         panel.border = element_rect(colour = "black", fill=NA, size=0.5))
-
+graph_b
 
 # Graph 3
-for (i in 1:50){
-  Nt <- vector()
-  Nt[1] <- 10
-  r <- 3.0
-  K <- 1000
-  for (i in 2:n){
-    Nt[i] <- Nt[i-1] * (1 + r * (1 - (Nt[i-1])/K))
-  }
-}
 
-plot_N <- data.frame(gen,Nt)
+pop <- N(r3, 1000, 20, 50)
 
-graph_c <- ggplot(plot_N, aes(x=gen, y=Nt))+
+plot_N <- data.frame(gen,pop)
+
+graph_c <- ggplot(plot_N, aes(x=gen, y=pop))+
   geom_line()+
   ylim(-10,2000)+
   labs(x = "Generation",
        y = "Population size") +
   annotate("text", x=25, y=1900,
-           label = paste("italic(r)==", r),
+           label = paste("italic(r)==", r3),
            parse=TRUE,
            size=5) +
   theme(panel.grid.major = element_blank(), 
@@ -201,28 +187,21 @@ graph_c <- ggplot(plot_N, aes(x=gen, y=Nt))+
         panel.background = element_blank(), 
         axis.line = element_line(colour = "black"),
         panel.border = element_rect(colour = "black", fill=NA, size=0.5))
-
+graph_c
 
 # Graph 4
-for (i in 1:50){
-  Nt <- vector()
-  Nt[1] <- 10
-  r <- 3.01
-  K <- 1000
-  for (i in 2:n){
-    Nt[i] <- Nt[i-1] * (1 + r * (1 - (Nt[i-1])/K))
-  }
-}
 
-plot_N <- data.frame(gen,Nt)
+pop <- N(r4, 1000, 20, 50)
 
-graph_d <- ggplot(plot_N, aes(x=gen, y=Nt))+
+plot_N <- data.frame(gen,pop)
+
+graph_d <- ggplot(plot_N, aes(x=gen, y=pop))+
   geom_line()+
   ylim(-10,2000)+
   labs(x = "Generation",
        y = "Population size") +
   annotate("text", x=25, y=1900,
-           label = paste("italic(r)==", r),
+           label = paste("italic(r)==", r4),
            parse=TRUE,
            size=5) +
   theme(panel.grid.major = element_blank(), 
@@ -230,6 +209,7 @@ graph_d <- ggplot(plot_N, aes(x=gen, y=Nt))+
         panel.background = element_blank(), 
         axis.line = element_line(colour = "black"),
         panel.border = element_rect(colour = "black", fill=NA, size=0.5))
+graph_d
 
 # Combine all plots
 require(cowplot)
@@ -255,3 +235,4 @@ for (z in 1:length(r)) {
   points(rep(r[z], length(uniqueN)), uniqueN, cex = 0.1, pch = 19)
 }
 
+# WORKSHOP 4 ------------------------------------------------------------------
