@@ -236,3 +236,270 @@ for (z in 1:length(r)) {
 }
 
 # WORKSHOP 4 ------------------------------------------------------------------
+
+## MATRICES
+
+vals <- 1:6
+m <- matrix(vals, nrow=2, ncol=3)
+m <- matrix(vals, nrow=2, ncol=3, byrow=TRUE)
+vals <- runif(6)
+m <- matrix(vals, nrow=2, ncol=3)
+
+matrix(1:4, nrow=2, ncol=3)
+matrix(1:8, nrow=2, ncol=3)
+
+dim(matrix(1:6, nrow=2, ncol=3))
+m[2,3]
+m[2,]
+m[,3]
+
+m <- matrix(runif(12), nrow=3, ncol=4)
+m.subset <- m[c(1,2), c(1,3)]
+
+m[1,]
+m[1,,drop=FALSE]
+dim(m[1,])
+dim(m[1,,drop=FALSE])
+
+m[3]
+
+a <- c(1,2,3)
+b <- c(-3,-4,-5)
+cbind(a,b)
+rbind(a,b)
+
+# 1. Create some matrices of your own
+m1 <- matrix(1:9, nrow = 3, ncol = 3)
+
+x <- 1:5
+y <- 6:10
+z <- 11:15
+m2 <- cbind(x,y,z)
+
+# 2. Use vector commands to remove rows or columns
+m3 <- matrix(1:25, nrow=5, ncol=5)
+m3_dropc <- m3[, -c(3,4)]
+m3_dropr <- m3[-c(2,5),]
+
+
+## Basic matrix operations
+M <- matrix(sample(1:9), nrow=3)
+N <- matrix(sample(1:9)/10, nrow=3)
+
+# 1. Compute the "dot product" of two vectors
+v <- c(2,3,4)
+dp <- v %*% M
+dp
+
+# 2. Matrix multiplication is not commutative
+MN <- M %*% N
+NM <- N %*% N
+# M x N != N %*% M
+
+# 3. Matrix multiplication is associative
+P <- matrix(sample(1:9)*2, nrow=3)
+M_NP <- M %*% (N %*% P)
+M_NP
+MN_P <- (M %*% N) %*% P
+M_NP
+# M(NP) = MN(P)
+
+# 4. Matrix multiplying a matrix by its inverse yields the identity matrix
+invM <- solve(M)
+I <- zapsmall(M %*% invM)
+
+
+## Arrays
+
+vals <- 1:24
+a <- array(vals, dim=c(3,2,4))
+a[2,1,3]
+
+# 1,2 Create your own array and try the dim command
+vals <- sample(1:100)
+b <- array(vals, dim = c(4, 8, 12))
+b[3,6,4]
+# Row 3, col 6, matrix 4 = 64
+
+
+## Dimnames
+
+phy.mat <- matrix(0, nrow=3, ncol=3)
+phy.dists <- runif(3)
+phy.mat[upper.tri(phy.mat)] <- phy.dists
+phy.mat[lower.tri(phy.mat)] <- phy.dists
+
+phy.mat[1,2]
+
+sp.names <- c('dog', 'cat', 'mouse')
+colnames(phy.mat) <- sp.names
+rownames(phy.mat) <- sp.names
+dimnames(phy.mat) <- list(sp.names, sp.names)
+
+phy.mat['dog', 'cat']
+
+# 1. Create a 5x4 matrix, and assign row & column names to it
+
+beau <- c(10,20,16,19,18)
+cad <- c(10,14,16,9,20)
+caleb <- c(10,12,14,20,16)
+fjord <- c(13,11,18,14,7)
+names <- c("Beau", "Caduceus", "Caleb", "Fjord")
+stats <- c("Str", "Dex", "Con", "Int", "Wis")
+m9.mat <- cbind(beau, cad, caleb, fjord)
+dimnames(m9.mat) <- list(stats, names)
+m9.mat
+
+# 2. Create a smaller subset
+
+emp.kids <- m9.mat[c("Dex", "Int"),c("Beau","Caleb")]
+emp.kids
+
+
+## Multi-variable models using matrix notation
+require(tidyr)
+require(ggplot2)
+
+a <- 1
+b <- 1
+num.iter <- 250
+
+N1 <- rep(NA,num.iter)
+N2 <- rep(NA, num.iter)
+
+N1[1] <- 20
+N2[1] <- 980
+
+for (t in 2:num.iter){
+  N1[t] <- (1-a) * N1[t-1] + b*(N2[t-1])
+  N2[t] <- (1-b) * N2[t-1] + a*(N1[t-1])
+}
+
+df <- data.frame(1:250, N1, N2) %>% 
+  pivot_longer(N1:N2, names_to = "population", values_to = "size") %>% 
+  rename(gen = X1.250)
+  
+plot1 <- ggplot(data=df, aes(x=gen, y=size, colour=population)) +
+  geom_line(size=2) +
+  ylim(0,1000) +
+  labs(x = "Generation",
+       y = "Population size",
+       colour = "Population") +
+  annotate("text", x=230, y=1000,
+           label = paste("alpha ==", a),
+           parse=TRUE,
+           size=5) +
+  annotate("text", x=230, y=950,
+           label = paste("beta ==", b),
+           parse=TRUE,
+           size=5) +
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(), 
+        axis.line = element_line(colour = "black"),
+        panel.border = element_rect(colour = "black", fill=NA, size=0.5))
+plot1
+
+## 2. Repeat code with alpha = 0.98 and beta = 0.99
+a <- 0.98
+b <- 0.99
+
+for (t in 2:num.iter){
+  N1[t] <- (1-a) * N1[t-1] + b*(N2[t-1])
+  N2[t] <- (1-b) * N2[t-1] + a*(N1[t-1])
+}
+
+df <- data.frame(1:250, N1, N2) %>% 
+  pivot_longer(N1:N2, names_to = "population", values_to = "size") %>% 
+  rename(gen = X1.250)
+
+plot2 <- ggplot(data=df, aes(x=gen, y=size, colour=population)) +
+  geom_line() +
+  ylim(0,1000) +
+  labs(x = "Generation",
+       y = "Population size",
+       colour = "Population") +
+  annotate("text", x=230, y=1000,
+           label = paste("alpha ==", a),
+           parse=TRUE,
+           size=5) +
+  annotate("text", x=230, y=950,
+           label = paste("beta ==", b),
+           parse=TRUE,
+           size=5) +
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(), 
+        axis.line = element_line(colour = "black"),
+        panel.border = element_rect(colour = "black", fill=NA, size=0.5))
+plot2
+
+
+## 3. Update code as function
+
+dispersal <- function(a, b){
+  num.iter <- 250
+  N1 <- rep(NA,num.iter)
+  N2 <- rep(NA, num.iter)
+  N1[1] <- 20
+  N2[1] <- 980
+  for (t in 2:num.iter){
+    N1[t] <- (1-a) * N1[t-1] + b*(N2[t-1])
+    N2[t] <- (1-b) * N2[t-1] + a*(N1[t-1])
+  }
+  
+  df <- data.frame(1:250, N1, N2) %>% 
+    pivot_longer(N1:N2, names_to = "population", values_to = "size") %>% 
+    rename(gen = X1.250)
+  
+  plot2 <- ggplot(data=df, aes(x=gen, y=size, colour=population)) +
+    geom_line() +
+    ylim(0,1000) +
+    labs(x = "Generation",
+         y = "Population size",
+         colour = "Population") +
+    annotate("text", x=230, y=1000,
+             label = paste("alpha ==", a),
+             parse=TRUE,
+             size=5) +
+    annotate("text", x=230, y=950,
+             label = paste("beta ==", b),
+             parse=TRUE,
+             size=5) +
+    theme(panel.grid.major = element_blank(), 
+          panel.grid.minor = element_blank(),
+          panel.background = element_blank(), 
+          axis.line = element_line(colour = "black"),
+          panel.border = element_rect(colour = "black", fill=NA, size=0.5))
+  plot2
+}
+
+dispersal(0.01,0.02)
+
+
+## 4. Create a plot where x-axis is alpha & y-axis is beta
+
+alpha.vals <- seq(from=0,to=1,length=10)
+beta.vals <- seq(from=0,to=1,length=10)
+
+combinations <- expand.grid(alpha=alpha.vals,beta=beta.vals)
+
+myfun <- function(a, b) {
+  num.iter <- 100
+  N1 <- rep(NA, num.iter)
+  N2 <- rep(NA, num.iter)
+  N1[1] <- 20
+  N2[1] <- 980
+  for (t in 2:num.iter) {
+    N1[t] <- (1 - a) * N1[t - 1] + b * (N2[t - 1])
+    N2[t] <- (1 - b) * N2[t - 1] + a * (N1[t - 1])
+  }
+  return(N1[100])
+}
+
+res <- round(mapply(myfun, combinations[,'alpha'], combinations[,'beta']))
+
+mat <- matrix(res, nrow=10, ncol=10)
+image(mat,
+      xlab = expression(alpha),
+      ylab = expression(beta))
