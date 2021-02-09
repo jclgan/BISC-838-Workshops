@@ -1,0 +1,124 @@
+---
+title: "BISC 838 Assignment 1"
+subtitle: "Hughes, T.P. (1984). **Population dynamics based on individual size rather than age: A general model with a reef coral example.** *The American Naturalist* 126(6): 778-795"
+author: "Julian Gan"
+date: "2021-08-02"
+output: 
+  pdf_document: 
+    latex_engine: xelatex
+mainfont: Calibri Light
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Background and Model Description
+
+The model proposed by Hughes (1983) is a modified version of the Leslie matrix, which employs a size-structured population for projecting the population dynamics of clonal organisms. Hughes asserts that age-based demographic models are inappropriate for colonial organisms for multiple reasons: 1) there is large variation in individual size within an age cohort due to growth being influenced by stress, resource availability, or mortality of replicated body structures; 2) rejuvenating individuals are morphologically indistinct from newly-settled ones; 3) older individuals tend to be small- or medium-sized, and can be even smaller due to colony density or injury. Therefore, unless a colony is observed for the majority of its lifespan, it is very difficult to age individuals based on size or other morphological features.
+
+In a conventional Leslie matrix, each column is an age group; the top row is the number of sexual recruits born between time t and t+1, to each individual aged $i$ to $i+1$ at time $t$. The subdiagonal elements, $p_{i}$, represent the probability of an individual surviving to the next-older age class. All other elements of the matrix are 0 because it is impossible for an individual to regress in age or skip age classes. The lead eigenvalue, $\lambda_1$, determines the long-term growth rate of the population.
+
+## Leslie matrix
+
+$$L = \begin{bmatrix}f_0 & f_1 & f_2 & f_3 \\
+p_0 & 0 & 0 & 0 \\
+0 & p1 & 0 & 0 \\
+0 & 0 & p_2 & 0 \\
+\end{bmatrix}$$
+
+Hughes adapts this matrix by substituting age classes for size ranges. Where the model significantly deviates is that elements may have **nonzero** values; instead they transitional probabilities of each size class, which may either grow ($g$), stay the same size ($L$), or contribute to a smaller size class by shrinking or fragmenting ($s$). The general model is shown as follows:
+
+
+## Hughes's Modified Size-Structured Matrix
+
+$$L_H = \begin{bmatrix}f+L & f+s & f+s & f+s \\
+g & L & s & s \\
+g & g & L & s \\
+g & g & g & L \\
+\end{bmatrix}$$
+
+The diagonal elements predict the probability of an individual staying in the same size class; probabilities below the diagonal are when individuals contribute to the next larger size class through growth, and probabilities above the diagonal are for organisms shrinking or fragmenting. Hughes then applies this model to constrict a matrix for a population of reef coral, *Agaricia agaricites* and designates the following size classes: 0-10 cm^2^, 10-50 cm^2^, 50-200 cm^2^, and >200 cm^2^. Hughes constructed a matrix for each year of observation, because the second year experienced a severe storm that caused significant mortality amongst the coral population. Hence, the two matrices are described as "Calm" and "Storm", respectively, with the leading eigenvalues being the long-term growth rate, $\lambda$.
+
+
+### Calm (1977/78)
+```{r calm, echo=FALSE, eval=TRUE}
+C <- matrix(c(0.6020, 0.1167, 0.0217, 0.0741,
+                 0.1681, 0.6167, 0.1087, 0.0370,
+                 0.0000, 0.2000, 0.8043, 0.1481,
+                 0.0000, 0.0171, 0.0217, 0.9259),
+               nrow=4, byrow=TRUE)
+C
+
+val.vec.C <- eigen(C)
+
+lambda.C <- val.vec.C$val[1] # It matches!
+rvec.C <- val.vec.C$vectors[,1]/sum(val.vec.C$vectors[,1])
+```
+The equilibrium growth constant, $\lambda$~Calm~, is `r lambda.C`.
+
+### Storm (1978/79)
+```{r stormy, echo=FALSE, eval=TRUE}
+S <- matrix(c(0.5135, 0.0794, 0.0727, 0.0714,
+                 0.2072, 0.6349, 0.2364, 0.2500,
+                 0.0000, 0.1746, 0.6545, 0.0714,
+                 0.0000, 0.0000, 0.0000, 0.7500),
+               nrow=4, byrow=TRUE)
+S
+
+val.vec.S <- eigen(S)
+
+lambda.S <- val.vec.S$val[1] # It matches!
+rvec.C <- val.vec.S$vectors[,1]/sum(val.vec.S$vectors[,1])
+```
+The equilibrium growth constant, $\lambda$~Stormy~, is `r lambda.S`.
+
+Hughes then applied the matrices to predict demographic behaviour, using a starting population at time $t_1$ of $\vec{n_t} = [1000, 0, 0, 0]$ at 3, 6, and 21 years.
+
+```{r echo=FALSE, warning=FALSE, fig.height = 8, fig.width = 10, fig.cap="Changes in the number and size of coral colonies as a function of cohort age, from an intial settlement of 1000 colonies. Population behaviour is projected according to the Calm or Storm matrix. Size classes I-IV are as follows: 0-10 cm^2^, 10-50 cm^2^, 50-200 cm^2^, and >200 cm^2^, respectively." }
+## Project the changes in a population over time
+N0 <- matrix(c(1000,0,0,0))
+
+pop <- function(m) {
+  N.projected <- matrix(0, nrow = nrow(m), ncol=years+1)
+  N.projected[,1] <- N0
+  for(i in 1:years){
+    N.projected[, i+1] <- m %*% N.projected[,i]
+  }
+  return(N.projected)
+}
+
+par(mfrow=c(1,2)) 
+years <- 75
+matplot(0:years,
+        t(pop(C)),
+        type= "l",
+        lwd = 2,
+        lty = 1,
+        ylab = "Cohort size",
+        xlab = "Time (years)",
+        main = "A. Calm (1977/78)",
+        log = "y",
+        xlim = c(0,75)
+)
+legend("topright", legend = c("I", "I", "III", "IV"), 
+       col = 1:4, lwd = 2, lty = 1)
+
+years <- 21
+matplot(0:years,
+        t(pop(S)),
+        type= "l",
+        lwd = 2,
+        lty = 1,
+        ylab = "Cohort size",
+        xlab = "Time (years)",
+        main = "B. Storm (1978/79)",
+        log = "y",
+        xlim = c(0,50)
+)
+legend("topright", legend = c("I", "I", "III", "IV"), 
+       col = 1:4, lwd = 2, lty = 1)
+```
+
+Whilst it took approximately 35 years for the size structure to reach equilibrium under the calm matrix, the population stabilized much quicker under the storm matrix (in about 12 years) (Fig. 1). This is partly due to the fact that no individuals could reach class size IV. I am able to successfully confirm that once size class I declines due to mortality and growth, consecutive classes reach their peak cohort size before declining towards extinction.test = 
+
