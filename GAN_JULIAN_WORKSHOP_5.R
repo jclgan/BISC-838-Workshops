@@ -99,11 +99,12 @@ evec.l <- l.vals.vecs$vectors[,1]
 vleft <- l.vals.vecs$vectors[,1]/l.vals.vecs$vectors[1,1]
 vleft
 
-vleft.new <- vleft / (vleft %*% vright)
+vleft.adj <- vleft / (vleft %*% vright)
 
-vleft.new %*% vright
+vleft.adj %*% vright
+# [1,]    1
 
-lhs <- vleft.new %*% L
+lhs <- vleft.adj %*% L
 lhs
 # [1,] 0.6688773 4.232452 5.372278 1.100544
 
@@ -117,4 +118,19 @@ rhs
 
 
 # 8. Compute the total pop size after 10 gens with 1 individual per age class
+N0.1 <- c(1,0,0,0)
+N0.1.adj <- N0.1 %*% vleft.adj  
+N10.1 <- N0.1.adj %*% eval.r^10
+N10.1
 
+N10.2 <- (c(0,1,0,0) %*% vleft.adj) %*% eval.r^10
+N10.2
+
+N10.3 <- (c(0,0,1,0) %*% vleft.adj) %*% eval.r^10
+N10.3
+
+N10.4 <- (c(0,0,0,1) %*% vleft.adj) %*% eval.r^10
+N10.4
+
+# Yes, I agree with my inferences; the 3 year-olds are approximately 5 times as fertile
+# as 4+ year-olds
