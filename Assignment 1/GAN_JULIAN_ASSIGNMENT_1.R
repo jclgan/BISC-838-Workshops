@@ -58,7 +58,7 @@ matplot(0:years,
         log = "y",
         xlim = c(0,75)
 )
-legend("topright", legend = c("I", "I", "III", "IV"), 
+legend("topright", legend = c("I", "II", "III", "IV"), 
        col = 1:4, lwd = 2, lty = 1)
 
 years <- 21
@@ -73,5 +73,9 @@ matplot(0:years,
         log = "y",
         xlim = c(0,50)
 )
-legend("topright", legend = c("I", "I", "III", "IV"), 
+legend("topright", legend = c("I", "II", "III", "IV"), 
        col = 1:4, lwd = 2, lty = 1)
+
+## Visually inspect to confirm the years each cohort peaked under each matrix.
+popC <- t(pop(C))
+popS <- t(pop(S))

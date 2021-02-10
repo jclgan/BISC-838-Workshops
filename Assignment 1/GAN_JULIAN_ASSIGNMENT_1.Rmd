@@ -2,7 +2,7 @@
 title: "BISC 838 Assignment 1"
 subtitle: "Hughes, T.P. (1984). **Population dynamics based on individual size rather than age: A general model with a reef coral example.** *The American Naturalist* 126(6): 778-795"
 author: "Julian Gan"
-date: "2021-08-02"
+date: "2021-02-09"
 output: 
   pdf_document: 
     latex_engine: xelatex
@@ -17,9 +17,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 The model proposed by Hughes (1983) is a modified version of the Leslie matrix, which employs a size-structured population for projecting the population dynamics of clonal organisms. Hughes asserts that age-based demographic models are inappropriate for colonial organisms for multiple reasons: 1) there is large variation in individual size within an age cohort due to growth being influenced by stress, resource availability, or mortality of replicated body structures; 2) rejuvenating individuals are morphologically indistinct from newly-settled ones; 3) older individuals tend to be small- or medium-sized, and can be even smaller due to colony density or injury. Therefore, unless a colony is observed for the majority of its lifespan, it is very difficult to age individuals based on size or other morphological features.
 
-In a conventional Leslie matrix, each column is an age group; the top row is the number of sexual recruits born between time t and t+1, to each individual aged $i$ to $i+1$ at time $t$. The subdiagonal elements, $p_{i}$, represent the probability of an individual surviving to the next-older age class. All other elements of the matrix are 0 because it is impossible for an individual to regress in age or skip age classes. The lead eigenvalue, $\lambda_1$, determines the long-term growth rate of the population.
-
 ## Leslie matrix
+In a conventional Leslie matrix, each column is an age group; the top row is the number of sexual recruits born between time t and t+1, to each individual aged $i$ to $i+1$ at time $t$. The subdiagonal elements, $p_{i}$, represent the probability of an individual surviving to the next-older age class. All other elements of the matrix are 0 because it is impossible for an individual to regress in age or skip age classes. The lead eigenvalue, $\lambda_1$, determines the long-term growth rate of the population.
 
 $$L = \begin{bmatrix}f_0 & f_1 & f_2 & f_3 \\
 p_0 & 0 & 0 & 0 \\
@@ -27,10 +26,10 @@ p_0 & 0 & 0 & 0 \\
 0 & 0 & p_2 & 0 \\
 \end{bmatrix}$$
 
-Hughes adapts this matrix by substituting age classes for size ranges. Where the model significantly deviates is that elements may have **nonzero** values; instead they transitional probabilities of each size class, which may either grow ($g$), stay the same size ($L$), or contribute to a smaller size class by shrinking or fragmenting ($s$). The general model is shown as follows:
-
 
 ## Hughes's Modified Size-Structured Matrix
+
+Hughes adapts this matrix by substituting age classes for size ranges. Where the model significantly deviates is that elements may have **nonzero** values; instead they transitional probabilities of each size class, which may either grow ($g$), stay the same size ($L$), or contribute to a smaller size class by shrinking or fragmenting ($s$). The general model is shown as follows:
 
 $$L_H = \begin{bmatrix}f+L & f+s & f+s & f+s \\
 g & L & s & s \\
@@ -38,7 +37,9 @@ g & g & L & s \\
 g & g & g & L \\
 \end{bmatrix}$$
 
-The diagonal elements predict the probability of an individual staying in the same size class; probabilities below the diagonal are when individuals contribute to the next larger size class through growth, and probabilities above the diagonal are for organisms shrinking or fragmenting. Hughes then applies this model to constrict a matrix for a population of reef coral, *Agaricia agaricites* and designates the following size classes: 0-10 cm^2^, 10-50 cm^2^, 50-200 cm^2^, and >200 cm^2^. Hughes constructed a matrix for each year of observation, because the second year experienced a severe storm that caused significant mortality amongst the coral population. Hence, the two matrices are described as "Calm" and "Storm", respectively, with the leading eigenvalues being the long-term growth rate, $\lambda$.
+The diagonal elements predict the probability of an individual staying in the same size class; probabilities below the diagonal are when individuals contribute to the next larger size class through growth, and probabilities above the diagonal are for organisms shrinking or fragmenting. 
+
+Hughes then applies this model to constrict a matrix for a population of reef coral, *Agaricia agaricites* and designates the following size classes: 0-10 cm^2^, 10-50 cm^2^, 50-200 cm^2^, and >200 cm^2^. Hughes constructed a matrix for each year of observation, because the second year experienced a severe storm that caused significant mortality amongst the coral population, with the largest size classes being the most affected. Hence, the two matrices are described as "Calm" and "Storm", respectively, with the leading eigenvalues being the long-term growth rate, $\lambda$.
 
 
 ### Calm (1977/78)
@@ -55,7 +56,7 @@ val.vec.C <- eigen(C)
 lambda.C <- val.vec.C$val[1] # It matches!
 rvec.C <- val.vec.C$vectors[,1]/sum(val.vec.C$vectors[,1])
 ```
-The equilibrium growth constant, $\lambda$~Calm~, is `r lambda.C`.
+I confirm that the equilibrium growth constant, $\lambda$~Calm~, is `r lambda.C`.
 
 ### Storm (1978/79)
 ```{r stormy, echo=FALSE, eval=TRUE}
@@ -71,7 +72,7 @@ val.vec.S <- eigen(S)
 lambda.S <- val.vec.S$val[1] # It matches!
 rvec.C <- val.vec.S$vectors[,1]/sum(val.vec.S$vectors[,1])
 ```
-The equilibrium growth constant, $\lambda$~Stormy~, is `r lambda.S`.
+I confirm that the equilibrium growth constant, $\lambda$~Stormy~, is `r lambda.S`.
 
 Hughes then applied the matrices to predict demographic behaviour, using a starting population at time $t_1$ of $\vec{n_t} = [1000, 0, 0, 0]$ at 3, 6, and 21 years.
 
@@ -101,7 +102,7 @@ matplot(0:years,
         log = "y",
         xlim = c(0,75)
 )
-legend("topright", legend = c("I", "I", "III", "IV"), 
+legend("topright", legend = c("I", "II", "III", "IV"), 
        col = 1:4, lwd = 2, lty = 1)
 
 years <- 21
@@ -116,9 +117,11 @@ matplot(0:years,
         log = "y",
         xlim = c(0,50)
 )
-legend("topright", legend = c("I", "I", "III", "IV"), 
+legend("topright", legend = c("I", "II", "III", "IV"), 
        col = 1:4, lwd = 2, lty = 1)
 ```
 
-Whilst it took approximately 35 years for the size structure to reach equilibrium under the calm matrix, the population stabilized much quicker under the storm matrix (in about 12 years) (Fig. 1). This is partly due to the fact that no individuals could reach class size IV. I am able to successfully confirm that once size class I declines due to mortality and growth, consecutive classes reach their peak cohort size before declining towards extinction.test = 
+Under the Calm matrix, size cohorts II, III, and IV peaked in years 3, 9, and 20, respectively (Hughes found cohort IV peaked in year 21, but that could be attributed to a rounding error); however under the Storm matrix, cohorts II and III peaked in years 2 and 6, respectively  (Fig. 1). Since no individuals were able to grow to size class IV during the storm year, there is no line for that plot. Whilst it took approximately 35 years for the size structure to reach equilibrium under the Calm matrix, the population stabilized much quicker under the Storm matrix (in about 12 years). This is partly due to the fact that no individuals could reach class size IV. I am able to successfully confirm that once size class I declines due to mortality and growth, consecutive classes reach their peak cohort size before declining towards extinction.
+
+This modified version of the Leslie population matrix demonstrates how the change in growth rate of a single cohort can have wide ramifications for the size structure and long-term viability of the population, as a whole
 
